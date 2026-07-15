@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>모래의 진혼곡 — 푸른 불꽃의 기록</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#121210;
+  --bg-2:#1a1a17;
+  --bg-3:#22221e;
+  --marble:#F8F9FA;
+  --flame:#00E5FF;
+  --flame-dim:rgba(0,229,255,.35);
+  --gold:#c9a86a;
+  --text:#d4d2cb;
+  --text-dim:#9c9a90;
+  --line:rgba(248,249,250,.09);
+  --serif:'Gowun Batang','Cormorant Garamond',serif;
+  --sans:'Noto Sans KR',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  font-weight:400;
+  line-height:1.8;
+  letter-spacing:.02em;
+  overflow-x:hidden;
+}
+::selection{background:var(--flame-dim);color:var(--marble)}
+::-webkit-scrollbar{width:10px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:#33332d;border-radius:5px}
+::-webkit-scrollbar-thumb:hover{background:var(--flame-dim)}
+
+/* ===== sand canvas ===== */
+#sand{position:fixed;inset:0;z-index:1;pointer-events:none}
+
+/* ===== nav ===== */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 clamp(16px,4vw,48px);height:64px;
+  background:rgba(18,18,16,.78);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+  transition:transform .4s ease;
+}
+.nav-logo{
+  font-family:var(--serif);font-size:1.15rem;color:var(--marble);
+  text-decoration:none;letter-spacing:.35em;display:flex;align-items:center;gap:10px;
+}
+.nav-logo .flame-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--flame);
+  box-shadow:0 0 10px var(--flame),0 0 22px var(--flame-dim);
+  animation:flicker 3s infinite ease-in-out;
+}
+@keyframes flicker{0%,100%{opacity:1}45%{opacity:.55}60%{opacity:.9}75%{opacity:.65}}
+.nav-links{display:flex;gap:clamp(10px,2vw,28px);list-style:none}
+.nav-links a{
+  color:var(--text-dim);text-decoration:none;font-size:.82rem;letter-spacing:.12em;
+  padding:6px 2px;position:relative;transition:color .3s;white-space:nowrap;
+}
+.nav-links a::after{
+  content:'';position:absolute;left:0;bottom:0;height:1px;width:0;
+  background:var(--flame);transition:width .3s;box-shadow:0 0 8px var(--flame);
+}
+.nav-links a:hover,.nav-links a.active{color:var(--marble)}
+.nav-links a:hover::after,.nav-links a.active::after{width:100%}
+#menu-btn{display:none;background:none;border:none;color:var(--marble);font-size:1.4rem;cursor:pointer}
+.nav-right{display:flex;align-items:center;gap:clamp(14px,2.2vw,28px)}
+#bgm-btn{
+  display:flex;align-items:center;gap:8px;
+  background:none;border:1px solid var(--line);border-radius:20px;
+  padding:6px 14px;cursor:pointer;color:var(--text-dim);
+  transition:border-color .3s,color .3s;
+}
+#bgm-btn:hover{border-color:var(--flame-dim);color:var(--marble)}
+#bgm-btn .bgm-ico{font-size:.95rem;line-height:1}
+#bgm-btn.on{color:var(--flame);border-color:var(--flame-dim)}
+.bgm-bars{display:flex;align-items:flex-end;gap:2px;height:12px}
+.bgm-bars i{
+  width:2px;height:4px;background:currentColor;border-radius:1px;
+  transition:height .3s;
+}
+#bgm-btn.on .bgm-bars i{animation:bar .9s infinite ease-in-out}
+#bgm-btn.on .bgm-bars i:nth-child(2){animation-delay:.25s}
+#bgm-btn.on .bgm-bars i:nth-child(3){animation-delay:.5s}
+@keyframes bar{0%,100%{height:4px}50%{height:12px}}
+@media(max-width:900px){
+  .nav-links{
+    position:fixed;top:64px;right:0;flex-direction:column;gap:0;
+    background:rgba(18,18,16,.97);width:230px;padding:12px 0;
+    border-left:1px solid var(--line);border-bottom:1px solid var(--line);
+    transform:translateX(100%);transition:transform .35s ease;
+  }
+  .nav-links.open{transform:translateX(0)}
+  .nav-links a{display:block;padding:12px 24px}
+  #menu-btn{display:block}
+}
+
+/* ===== layout ===== */
+main{position:relative;z-index:2}
+section{padding:clamp(90px,12vh,150px) clamp(20px,6vw,80px);max-width:1200px;margin:0 auto}
+.kicker{
+  font-family:var(--sans);font-size:.75rem;letter-spacing:.5em;color:var(--flame);
+  text-transform:uppercase;margin-bottom:18px;opacity:.85;
+}
+h2.sec-title{
+  font-family:var(--serif);font-weight:700;color:var(--marble);
+  font-size:clamp(1.7rem,4vw,2.6rem);letter-spacing:.08em;margin-bottom:14px;
+}
+.sec-sub{color:var(--text-dim);max-width:620px;font-size:.98rem;margin-bottom:56px}
+.divider{
+  width:64px;height:1px;margin:26px 0 0;
+  background:linear-gradient(90deg,var(--flame),transparent);
+}
+
+/* ===== reveal ===== */
+.reveal{opacity:0;transform:translateY(34px);transition:opacity .9s ease,transform .9s ease}
+.reveal.visible{opacity:1;transform:none}
+
+/* ===== hero ===== */
+#hero{
+  min-height:100vh;max-width:none;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;position:relative;
+  padding-top:64px;overflow:hidden;
+}
+#hero::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 60% 45% at 50% 62%,rgba(0,229,255,.07),transparent 70%),
+    radial-gradient(ellipse 90% 60% at 50% 110%,rgba(201,168,106,.05),transparent 70%);
+  pointer-events:none;
+}
+.flame-wrap{
+  position:relative;margin-bottom:30px;
+  opacity:0;animation:flameIn 2s ease .2s forwards;
+}
+.hero-flame-vid{
+  height:clamp(70px,11vh,105px);width:auto;display:block;
+  pointer-events:none;
+}
+@keyframes flameIn{to{opacity:1}}
+@keyframes sway{0%,100%{transform:rotate(0) scaleY(1)}30%{transform:rotate(2.5deg) scaleY(1.07)}55%{transform:rotate(-2deg) scaleY(.95)}80%{transform:rotate(1.5deg) scaleY(1.04)}}
+.hero-era{font-size:.78rem;letter-spacing:.55em;color:var(--text-dim);margin-bottom:26px}
+.hero-poem{
+  font-family:var(--serif);font-weight:400;color:var(--marble);
+  font-size:clamp(1.05rem,2.8vw,1.6rem);letter-spacing:.14em;line-height:3;
+  text-shadow:0 0 50px rgba(0,229,255,.12);
+}
+.hero-poem em{color:var(--flame);font-style:normal;text-shadow:0 0 12px var(--flame-dim)}
+.hero-poem .line{
+  display:block;opacity:0;transform:translateY(20px);
+  animation:lineUp 2s ease forwards;
+}
+.hero-poem .stanza{margin-top:1.7em}
+@keyframes lineUp{to{opacity:1;transform:none}}
+.scroll-hint{opacity:0;animation:hintIn 1.8s ease 7s forwards}
+@keyframes hintIn{to{opacity:1}}
+.scroll-hint{
+  position:absolute;bottom:40px;left:50%;transform:translateX(-50%);
+  font-size:.7rem;letter-spacing:.4em;color:var(--text-dim);
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+}
+.scroll-hint::after{
+  content:'';width:1px;height:44px;
+  background:linear-gradient(to bottom,var(--flame),transparent);
+  animation:drop 2.2s infinite ease-in-out;
+}
+@keyframes drop{0%{transform:scaleY(0);transform-origin:top}45%{transform:scaleY(1);transform-origin:top}55%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* ===== intro prologue ===== */
+.prologue{
+  font-family:var(--serif);font-size:clamp(1rem,2.2vw,1.25rem);line-height:2.6;
+  color:var(--text);max-width:760px;margin:0 auto;text-align:center;letter-spacing:.06em;
+}
+.prologue strong{color:var(--marble);font-weight:700}
+.prologue .cyan{color:var(--flame);text-shadow:0 0 14px var(--flame-dim)}
+.faction-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:22px;margin-top:72px}
+.faction{
+  border:1px solid var(--line);background:linear-gradient(180deg,var(--bg-2),transparent);
+  padding:38px 30px;position:relative;overflow:hidden;transition:border-color .4s,transform .4s;
+}
+.faction:hover{transform:translateY(-5px)}
+.faction::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;transition:box-shadow .4s}
+.faction.dawn::before{background:var(--gold)}
+.faction.dusk::before{background:#3a6ea5}
+.faction.scale::before{background:var(--flame)}
+.faction.dawn:hover{border-color:rgba(201,168,106,.4)}
+.faction.dusk:hover{border-color:rgba(58,110,165,.5)}
+.faction.scale:hover{border-color:var(--flame-dim)}
+.faction .f-sym{font-size:1.6rem;margin-bottom:16px;display:block;filter:grayscale(.3)}
+.faction h3{font-family:var(--serif);color:var(--marble);font-size:1.2rem;letter-spacing:.12em;margin-bottom:6px}
+.faction .f-en{font-size:.7rem;letter-spacing:.3em;color:var(--text-dim);margin-bottom:18px}
+.faction p{font-size:.92rem;color:var(--text);line-height:1.95}
+.faction .f-creed{
+  margin-top:18px;padding-top:16px;border-top:1px dashed var(--line);
+  font-family:var(--serif);font-size:.85rem;color:var(--text);font-style:italic;
+}
+/* ===== characters ===== */
+.char-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:20px}
+.char-card{
+  border:1px solid var(--line);background:linear-gradient(180deg,var(--bg-2),var(--bg));
+  cursor:pointer;position:relative;overflow:hidden;
+  transition:transform .45s ease,border-color .45s,box-shadow .45s;
+}
+.char-card:hover{transform:translateY(-8px);border-color:var(--flame-dim);box-shadow:0 18px 44px rgba(0,0,0,.5),0 0 30px rgba(0,229,255,.06)}
+.char-portrait{
+  height:280px;display:flex;align-items:flex-end;justify-content:center;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 100%,rgba(0,229,255,.08),transparent),
+    linear-gradient(180deg,#191914,#14140f);
+  border-bottom:1px solid var(--line);position:relative;overflow:hidden;
+}
+.char-portrait img{
+  width:100%;height:100%;object-fit:cover;object-position:center top;
+  transition:transform .6s ease;
+}
+.char-card:hover .char-portrait img{transform:scale(1.05)}
+.char-info{padding:20px 20px 24px}
+.char-info .c-faction{font-size:.65rem;letter-spacing:.32em;margin-bottom:8px}
+.c-faction.dawn{color:var(--gold)}
+.c-faction.dusk{color:#7ea8d8}
+.c-faction.scale{color:var(--flame)}
+.char-info h3{font-family:var(--serif);color:var(--marble);font-size:1.25rem;letter-spacing:.14em;margin-bottom:4px}
+.char-info .c-role{font-size:.85rem;color:var(--text-dim)}
+.char-info .c-more{
+  margin-top:14px;font-size:.68rem;letter-spacing:.28em;color:var(--flame);
+  opacity:0;transform:translateY(6px);transition:opacity .4s,transform .4s;
+}
+.char-card:hover .c-more{opacity:.9;transform:none}
+
+/* ===== modal ===== */
+#modal-bg{
+  position:fixed;inset:0;z-index:200;background:rgba(10,10,8,.82);backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  opacity:0;pointer-events:none;transition:opacity .35s;
+}
+#modal-bg.open{opacity:1;pointer-events:auto}
+#modal{
+  background:var(--bg-2);border:1px solid rgba(0,229,255,.18);
+  max-width:820px;width:100%;max-height:86vh;overflow-y:auto;position:relative;
+  transform:translateY(26px);transition:transform .4s ease;
+  box-shadow:0 30px 90px rgba(0,0,0,.65),0 0 60px rgba(0,229,255,.05);
+}
+#modal-bg.open #modal{transform:none}
+#modal::-webkit-scrollbar{width:6px}
+#modal-close{
+  position:sticky;top:0;margin-left:auto;display:block;z-index:5;
+  background:rgba(18,18,16,.6);border:none;color:var(--text-dim);font-size:1.5rem;
+  width:52px;height:52px;cursor:pointer;transition:color .3s;
+}
+#modal-close:hover{color:var(--flame)}
+.m-card{width:100%;display:block;margin-top:-52px}
+.m-head{padding:28px clamp(26px,5vw,54px) 30px;border-bottom:1px solid var(--line)}
+.m-head .c-faction{font-size:.68rem;letter-spacing:.34em;margin-bottom:10px}
+.m-head h3{font-family:var(--serif);font-size:clamp(1.6rem,4vw,2.2rem);color:var(--marble);letter-spacing:.14em}
+.m-head .m-role{color:var(--text-dim);font-size:.9rem;margin-top:6px}
+.m-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.m-tags span{
+  font-size:.7rem;letter-spacing:.1em;color:var(--text);
+  border:1px solid var(--line);padding:4px 12px;background:rgba(248,249,250,.02);
+}
+.m-body{padding:30px clamp(26px,5vw,54px) 46px}
+.m-sec{margin-bottom:32px}
+.m-sec h4{
+  font-size:.72rem;letter-spacing:.42em;color:var(--flame);margin-bottom:14px;
+  display:flex;align-items:center;gap:14px;
+}
+.m-sec h4::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--flame-dim),transparent)}
+.m-sec p,.m-sec li{font-size:.95rem;color:var(--text);line-height:2.05}
+.m-sec ul{list-style:none}
+.m-sec li{padding-left:18px;position:relative}
+.m-sec li::before{content:'◦';position:absolute;left:0;color:var(--flame)}
+.m-quote{
+  font-family:var(--serif);font-style:italic;color:var(--marble);
+  border-left:2px solid var(--flame-dim);padding:6px 0 6px 20px;margin:12px 0;
+  font-size:.95rem;line-height:2;background:linear-gradient(90deg,rgba(0,229,255,.04),transparent);
+}
+.m-ability{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.m-ability div{border:1px solid var(--line);padding:16px 18px;background:rgba(248,249,250,.02)}
+.m-ability b{color:var(--marble);font-weight:500;display:block;margin-bottom:4px;font-size:.92rem}
+.m-ability span{font-size:.86rem;color:var(--text-dim);line-height:1.8;display:block}
+
+/* ===== regions ===== */
+.region-list{display:flex;flex-direction:column;gap:18px}
+.region{
+  border:1px solid var(--line);background:var(--bg-2);
+  display:grid;grid-template-columns:190px 1fr;overflow:hidden;
+  transition:border-color .4s;
+}
+.region:hover{border-color:rgba(248,249,250,.22)}
+.region-visual{
+  position:relative;min-height:170px;border-right:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+}
+.region-visual .r-sym{font-size:2.2rem;z-index:2;filter:drop-shadow(0 0 14px rgba(0,229,255,.25))}
+.region-visual img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  transition:transform .6s ease;
+}
+.region:hover .region-visual img{transform:scale(1.05)}
+.region-visual.has-img::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(to bottom,rgba(18,18,16,.08),rgba(18,18,16,.28));
+}
+.region-body{padding:28px 32px}
+.region-body .r-meta{display:flex;flex-wrap:wrap;gap:14px;font-size:.73rem;letter-spacing:.2em;color:var(--text-dim);margin-bottom:10px}
+.region-body .r-meta b{font-weight:400}
+.region-body .r-meta .dawn{color:var(--gold)}
+.region-body .r-meta .dusk{color:#7ea8d8}
+.region-body .r-meta .scale{color:var(--flame)}
+.region-body .r-meta .free{color:var(--text)}
+.region-body h3{font-family:var(--serif);color:var(--marble);font-size:1.3rem;letter-spacing:.1em;margin-bottom:10px}
+.region-body p{font-size:.92rem;color:var(--text);line-height:2}
+@media(max-width:680px){
+  .region{grid-template-columns:1fr}
+  .region-visual{min-height:110px;border-right:none;border-bottom:1px solid var(--line)}
+}
+
+/* ===== beasts ===== */
+.beast-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px}
+.beast{
+  border:1px dashed rgba(248,249,250,.14);padding:34px 28px;position:relative;
+  background:
+    repeating-linear-gradient(-45deg,transparent 0 14px,rgba(248,249,250,.012) 14px 15px),
+    var(--bg-2);
+  transition:border-color .4s,transform .4s;
+}
+.beast:hover{border-color:var(--flame-dim);transform:translateY(-4px)}
+.beast .b-no{
+  position:absolute;top:18px;right:22px;font-family:var(--serif);
+  font-size:.8rem;color:rgba(138,136,127,.5);letter-spacing:.2em;
+}
+.beast .b-type{font-size:.7rem;letter-spacing:.26em;color:var(--flame);margin-bottom:12px}
+.beast h3{font-family:var(--serif);color:var(--marble);font-size:1.2rem;letter-spacing:.1em;margin-bottom:14px}
+.beast .b-redacted{
+  font-size:.82rem;color:var(--text-dim);line-height:2;
+}
+.beast .b-redacted .bar{
+  display:inline-block;height:.75em;background:rgba(138,136,127,.22);
+  border-radius:2px;vertical-align:middle;
+}
+.beast .b-status{
+  margin-top:20px;padding-top:16px;border-top:1px dashed var(--line);
+  font-size:.68rem;letter-spacing:.24em;color:rgba(0,229,255,.55);
+}
+.beast.filled{border-style:solid}
+.beast .b-img{
+  margin:-34px -28px 24px;overflow:hidden;border-bottom:1px solid var(--line);
+  position:relative;
+}
+.beast .b-img::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(to bottom,transparent 60%,rgba(18,18,16,.55));
+}
+.beast .b-img img{
+  width:100%;display:block;aspect-ratio:16/10;object-fit:cover;
+  transition:transform .6s ease;
+}
+.beast:hover .b-img img{transform:scale(1.04)}
+.beast.filled .b-no{
+  background:rgba(18,18,16,.6);color:#d4d2cb;padding:4px 10px;
+  backdrop-filter:blur(3px);z-index:2;
+}
+.beast.god{grid-column:1/-1;border-color:rgba(0,229,255,.28)}
+.beast.god .b-img img{aspect-ratio:16/6}
+@media(max-width:680px){.beast.god .b-img img{aspect-ratio:16/10}}
+.beast .b-label{font-size:.68rem;letter-spacing:.3em;color:rgba(0,229,255,.6);margin:18px 0 6px}
+.beast .b-label:first-of-type{margin-top:0}
+.beast .b-desc{font-size:.9rem;color:var(--text);line-height:2}
+
+/* ===== lore ===== */
+.lore-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.lore{
+  border:1px solid var(--line);background:var(--bg-2);padding:30px 30px 34px;
+  transition:border-color .4s,transform .4s;position:relative;overflow:hidden;
+}
+.lore:hover{border-color:var(--flame-dim);transform:translateY(-4px)}
+.lore::after{
+  content:attr(data-num);position:absolute;bottom:-14px;right:10px;
+  font-family:var(--serif);font-size:4.6rem;color:rgba(248,249,250,.028);line-height:1;
+}
+.lore .l-en{font-size:.62rem;letter-spacing:.3em;color:var(--text-dim);margin-bottom:8px;text-transform:uppercase}
+.lore h3{font-family:var(--serif);color:var(--marble);font-size:1.15rem;letter-spacing:.1em;margin-bottom:14px}
+.lore h3 em{font-style:normal;color:var(--flame);font-size:.85rem}
+.lore p{font-size:.9rem;color:var(--text);line-height:2.05}
+.lore p+p{margin-top:12px}
+.lore b{color:var(--text);font-weight:500}
+
+/* ===== footer ===== */
+footer{
+  position:relative;z-index:2;border-top:1px solid var(--line);
+  padding:70px 20px 60px;text-align:center;
+}
+footer .f-flame-vid{
+  height:64px;width:auto;display:block;margin:0 auto 26px;
+  pointer-events:none;
+}
+footer p{font-family:var(--serif);color:var(--text-dim);font-size:.85rem;letter-spacing:.14em;line-height:2.4}
+footer .copy{font-family:var(--sans);font-size:.68rem;letter-spacing:.3em;margin-top:20px;color:rgba(138,136,127,.6)}
+</style>
+</head>
+<body>
+<canvas id="sand"></canvas>
+
+<nav id="nav">
+  <a class="nav-logo" href="#hero"><span class="flame-dot"></span>모래의 진혼곡</a>
+  <div class="nav-right">
+    <button id="bgm-btn" aria-label="배경음악 켜기/끄기" title="배경음악"><span class="bgm-ico">♪</span><span class="bgm-bars"><i></i><i></i><i></i></span></button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#hero">인트로</a></li>
+      <li><a href="#characters">모래의 잔상들</a></li>
+      <li><a href="#regions">사막의 이정표</a></li>
+      <li><a href="#beasts">사막의 재앙</a></li>
+      <li><a href="#lore">사막의 기록</a></li>
+    </ul>
+    <button id="menu-btn" aria-label="menu">☰</button>
+  </div>
+</nav>
+
+<main>
+<!-- ═══════════ SECTION 1 : HERO ═══════════ -->
+<section id="hero">
+  <div class="flame-wrap">
+    <video class="hero-flame-vid" autoplay muted loop playsinline aria-hidden="true">
+      <source src="flame_web.webm" type="video/webm">
+      <source src="flame_web.mp4" type="video/mp4">
+    </video>
+  </div>
+  <p class="hero-poem">
+    <span class="line" style="animation-delay:.6s">바람이 한 번 불어 네 발자국을 지우고,</span>
+    <span class="line" style="animation-delay:2s">바람이 두 번 불어 네 무거운 이름을 묻으리라.</span>
+    <span class="line stanza" style="animation-delay:4s">오지 않을 발자국을 쫓아 사막을 헤매는 자야,</span>
+    <span class="line" style="animation-delay:5.4s">백 년의 새벽이 지나도 <em>여명의 첨탑</em>은 비어 있구나.</span>
+  </p>
+  <div class="scroll-hint">아래로</div>
+</section>
+
+<!-- ═══════════ INTRO PROLOGUE ═══════════ -->
+<section id="prologue">
+  <p class="prologue reveal">
+    짐승과 인간의 피가 섞인 <strong>혼종</strong>들이 살아가는 끝없는 사막, <strong>카르바라</strong><br>
+    도시 밖은 죽음이며, 물은 목숨보다 귀하다.<br><br>
+    비를 내리는 유일한 힘 — <span class="cyan">하늘의 불꽃</span>을 두고<br>
+    그것을 <strong>지키려는 자</strong>와 <strong>꺼뜨리려는 자</strong>,<br>
+    그리고 태초의 모습 그대로 모래를 걷는 자들의 이야기.
+  </p>
+  <div class="faction-grid">
+    <div class="faction dawn reveal">
+      <span class="f-sym">☀</span>
+      <h3>여명의 상속자</h3>
+      <p class="f-en">HEIRS OF DAWN</p>
+      <p>신이 돌아오길 기다리며 그 유산을 수호하는 자들<br>하늘의 불꽃을 지키고, 모래숨 의식으로 비를 내려 사막 유일의 낙원을 유지한다.</p>
+      <p class="f-creed">"신이 남긴 것을 지키는 일이 곧 신을 기억하는 일이다. 우리가 잊는 순간, 세계도 잊힌다."</p>
+    </div>
+    <div class="faction dusk reveal">
+      <span class="f-sym">☽</span>
+      <h3>새벽의 발자국</h3>
+      <p class="f-en">FOOTSTEPS OF DAYBREAK</p>
+      <p>신 대신 우리 스스로 미래를 개척해야 한다고 믿는 자들<br>인류를 옭아매는 족쇄인 불꽃을 꺼뜨리려 하며, 과거 시어를 암살한 이력이 있다.</p>
+      <p class="f-creed">"우리는 신을 죽이려는 것이 아니다. 신 없이도 살 수 있음을 사막에 새기는 것이다."</p>
+    </div>
+    <div class="faction scale reveal">
+      <span class="f-sym">◈</span>
+      <h3>젖지 않는 비늘</h3>
+      <p class="f-en">THE UNWETTED SCALES · 태고족</p>
+      <p>푸른 비늘과 역안의 파충류 머리를 지닌 태초의 종족<br>신과 기적에 닿지 않은 본래의 모습으로, 더위에 면역이며 강력한 무력을 지녔다. 영역에 든 외부인은 말없이 척살한다.</p>
+      <p class="f-creed">"강함이란 변하지 않는 것이다. 바람이 모래를 깎아도 비늘은 남는다."</p>
+    </div>
+  </div>
+</section>
+<!-- ═══════════ SECTION 2 : CHARACTERS ═══════════ -->
+<section id="characters">
+  <p class="kicker reveal">02 · Characters</p>
+  <h2 class="sec-title reveal">모래의 잔상들</h2>
+  <p class="sec-sub reveal">모래 위에 발자국을 남기는 자들. 카드를 선택하면 기록을 열람할 수 있습니다.</p>
+  <div class="char-grid">
+
+    <div class="char-card reveal" data-char="ansir">
+      <div class="char-portrait">
+        <img src="img/ansir_thumb.webp" alt="안시르" loading="lazy">
+      </div>
+      <div class="char-info">
+        <p class="c-faction dawn">여명의 상속자</p>
+        <h3>안시르</h3>
+        <p class="c-role">여명의 지도자 · 신의 시대를 기억하는 자</p>
+        <p class="c-more">기록 열람 →</p>
+      </div>
+    </div>
+
+    <div class="char-card reveal" data-char="jahan">
+      <div class="char-portrait">
+        <img src="img/jahan_thumb.webp" alt="자한" loading="lazy" style="object-position:15% top">
+      </div>
+      <div class="char-info">
+        <p class="c-faction dawn">여명의 상속자</p>
+        <h3>자한</h3>
+        <p class="c-role">여명의 수호자 · 시어의 호위</p>
+        <p class="c-more">기록 열람 →</p>
+      </div>
+    </div>
+
+    <div class="char-card reveal" data-char="karim">
+      <div class="char-portrait">
+        <img src="img/karim_thumb.webp" alt="카림" loading="lazy" style="object-position:12% top">
+      </div>
+      <div class="char-info">
+        <p class="c-faction dusk">새벽의 발자국</p>
+        <h3>카림</h3>
+        <p class="c-role">새벽의 지도자 · 검은 날개의 전략가</p>
+        <p class="c-more">기록 열람 →</p>
+      </div>
+    </div>
+
+    <div class="char-card reveal" data-char="garban">
+      <div class="char-portrait">
+        <img src="img/garban_thumb.webp" alt="가르반" loading="lazy">
+      </div>
+      <div class="char-info">
+        <p class="c-faction dusk">새벽의 발자국</p>
+        <h3>가르반</h3>
+        <p class="c-role">새벽의 암살자 · 카림의 검</p>
+        <p class="c-more">기록 열람 →</p>
+      </div>
+    </div>
+
+    <div class="char-card reveal" data-char="rakasha">
+      <div class="char-portrait">
+        <img src="img/rakasha_thumb.webp" alt="라카샤" loading="lazy" style="object-position:15% top">
+      </div>
+      <div class="char-info">
+        <p class="c-faction scale">태고족 혼혈</p>
+        <h3>라카샤</h3>
+        <p class="c-role">용병 · 신을 사냥하는 자</p>
+        <p class="c-more">기록 열람 →</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════ SECTION 3 : REGIONS ═══════════ -->
+<section id="regions">
+  <p class="kicker reveal">03 · Regions</p>
+  <h2 class="sec-title reveal">사막의 이정표</h2>
+  <p class="sec-sub reveal">모래 바다 위에 흩어진 삶의 좌표들.</p>
+  <div class="region-list">
+
+    <div class="region reveal">
+      <div class="region-visual has-img"><img src="img/region_alzahr.webp" alt="알 자흐" loading="lazy" style="object-position:22% center"></div>
+      <div class="region-body">
+        <p class="r-meta"><b class="dawn">소속 · 여명의 상속자</b><b>위치 · 사막 중앙부</b></p>
+        <h3>알 자흐 <span style="font-size:.75rem;color:var(--text-dim);letter-spacing:.2em">AL ZAHR</span></h3>
+        <p>사막에서 유일하게 물이 풍족하게 흐르는 도시. 흰 대리석과 유리로 지어진 높고 화려한 건축물이 늘어서 있으며, 중앙에는 신전과 '하늘의 불꽃'이 봉인된 탑이 솟아 있다. 낮 동안 활기차고 질서정연하며 경건한 분위기가 도시를 감싼다. 시어의 희생으로 유지되는 번영의 상징이자, 그 그림자를 품은 곳.</p>
+      </div>
+    </div>
+
+    <div class="region reveal">
+      <div class="region-visual has-img"><img src="img/region_bahrlah.webp" alt="바흐 라" loading="lazy" style="object-position:22% center"></div>
+      <div class="region-body">
+        <p class="r-meta"><b class="dusk">소속 · 새벽의 발자국</b><b>위치 · 서쪽 붉은 협곡 깊은 곳</b></p>
+        <h3>바흐 라 <span style="font-size:.75rem;color:var(--text-dim);letter-spacing:.2em">BAHR LAH</span></h3>
+        <p>거대한 동굴과 절벽을 깎아 만든 석조 건물과 그 사이를 잇는 천막들로 이루어진, 주로 밤에 활기를 띠는 야행성 도시. 색색의 천과 등불이 어두운 협곡을 밝히며, 자유롭지만 어딘가 위태로운 분위기를 자아낸다. 오래된 믿음에서 벗어나 스스로의 힘으로 미래를 개척하려는 자들이 모인 곳.</p>
+      </div>
+    </div>
+
+    <div class="region reveal">
+      <div class="region-visual has-img"><img src="img/region_bluesands.webp" alt="푸른 사막" loading="lazy" style="object-position:22% center"></div>
+      <div class="region-body">
+        <p class="r-meta"><b class="scale">소속 · 젖지 않는 비늘</b><b>위치 · 동쪽과 남쪽 끝자락</b></p>
+        <h3>푸른 사막 <span style="font-size:.75rem;color:var(--text-dim);letter-spacing:.2em">THE BLUE SANDS</span></h3>
+        <p>태양빛을 받아 푸르게 빛나는 특이한 모래로 뒤덮인 광활한 지대. 외부인의 출입을 극도로 경계하며 침입자는 가차없이 처단하는 폐쇄적 영역. 인공 건축물 없이 자연 그대로의 지형에 둥지를 틀고 살아가며, 잊혀진 신 '순백의 모래 신'을 숭배하고 고대의 노래와 시를 간직하고 있다.</p>
+      </div>
+    </div>
+
+    <div class="region reveal">
+      <div class="region-visual has-img"><img src="img/region_mirage.webp" alt="신기루 시장" loading="lazy"></div>
+      <div class="region-body">
+        <p class="r-meta"><b class="free">소속 · 중립</b><b>위치 · 예측 불가 — 사막을 떠돎</b></p>
+        <h3>신기루 시장 <span style="font-size:.75rem;color:var(--text-dim);letter-spacing:.2em">MIRAGE BAZAAR</span></h3>
+        <p>어느 부족에도 속하지 않은 자들이 모여 형성한 이동형 시장. 매번 장소가 바뀌어 정해진 위치가 없으며, 이곳에서는 소속과 정체를 숨기고 거래하는 것이 규칙이다. 모든 종류의 싸움이 금지된 유일한 중립 구역으로, 온갖 정보와 물자가 오간다.</p>
+      </div>
+    </div>
+
+    <div class="region reveal">
+      <div class="region-visual has-img"><img src="img/region_saltflats.webp" alt="소금 대평원" loading="lazy"></div>
+      <div class="region-body">
+        <p class="r-meta"><b class="free">기타 지역</b><b>위치 · 여명 영토와 태고족 영역 사이</b></p>
+        <h3>소금 대평원 <span style="font-size:.75rem;color:var(--text-dim);letter-spacing:.2em">SALT FLATS</span></h3>
+        <p>여명의 영토와 태고족의 영역 사이에 펼쳐진 거대한 소금 호수 지대. 하얗게 마른 대지가 지평선까지 이어진다.</p>
+      </div>
+    </div>
+
+    <div class="region reveal">
+      <div class="region-visual has-img"><img src="img/region_fossil.webp" alt="화석 협곡" loading="lazy"></div>
+      <div class="region-body">
+        <p class="r-meta"><b class="free">기타 지역</b><b>위치 · 남쪽</b></p>
+        <h3>화석 협곡 <span style="font-size:.75rem;color:var(--text-dim);letter-spacing:.2em">FOSSIL CANYON</span></h3>
+        <p>거대 생물들의 뼈와 화석으로 가득한 남쪽의 협곡. 사가의 해를 살았던 거대한 것들의 무덤이 바람에 깎여 드러나 있다.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════ SECTION 4 : BEASTS ═══════════ -->
+<section id="beasts">
+  <p class="kicker reveal">04 · Beasts</p>
+  <h2 class="sec-title reveal">사막의 재앙</h2>
+  <p class="sec-sub reveal">도시 밖의 모래는 굶주려 있다. 생환자들의 증언을 모아 복원한 기록.</p>
+  <div class="beast-grid">
+
+    <div class="beast filled reveal"><div class="b-img"><img src="img/beast_crawler.webp" alt="거꾸로 기는 것" loading="lazy"></div><span class="b-no">No.01</span><p class="b-type">기만적인 야수</p><h3>거꾸로 기는 것</h3>
+      <p class="b-label">외형</p>
+      <p class="b-desc">1.9m의 사족보행체. 긴 팔다리와 청회색 피부, 눈이 없는 미끈한 머리를 지녔다. 지네 더듬이처럼 갈라진 혀가 감각기관 역할을 하며, 지네 머리 형태의 꼬리가 본체다. 등에는 노란 뿔 돌기가 솟아 있다.</p>
+      <p class="b-label">번식</p>
+      <p class="b-desc">근처에 생물이 다가오면 종을 가리지 않고 앞발로 눌러 고정한 뒤, 혀로 상대를 탐색해 몸속 깊은 곳에 산란한다.</p>
+    </div>
+
+    <div class="beast filled reveal"><div class="b-img"><img src="img/beast_stormmane.webp" alt="폭풍 갈기" loading="lazy"></div><span class="b-no">No.02</span><p class="b-type">하늘의 제왕</p><h3>폭풍 갈기</h3>
+      <p class="b-label">외형</p>
+      <p class="b-desc">몸길이 3m, 날개폭 7~8m에 달하는 대형 맹금형 야수. 노란 깃털 갈기와 깃털 꼬리, 날카로운 발톱과 뾰족한 부리, 맹금류의 눈을 지녔다.</p>
+      <p class="b-label">특징</p>
+      <p class="b-desc">무리 짓지 않고 홀로 다닌다. 공중이나 협곡 틈에서 순식간에 다가와 발톱으로 우그러뜨려 사냥한다. 강해 보이는 상대는 지칠 때까지 근처에서 지켜보는 끈질김을 보이며, 만만한 상대는 가지고 놀거나 산 채로 둥지까지 잡아가기도 한다.</p>
+    </div>
+
+    <div class="beast filled reveal"><div class="b-img"><img src="img/beast_singingsand.webp" alt="노래하는 모래" loading="lazy"></div><span class="b-no">No.03</span><p class="b-type">사막의 세이렌</p><h3>노래하는 모래</h3>
+      <p class="b-label">외형</p>
+      <p class="b-desc">모래 위에 여러 결의 선이 빼곡히 그어져 있는 듯한 모습의 지형. 실체가 없어, 만져 보아도 일반 모래와 다르지 않다.</p>
+      <p class="b-label">특징</p>
+      <p class="b-desc">특정 지역에 고정되어 움직이지 않는다. 사막의 시와 노래를 부르는 존재로, 가장 아름다운 목소리로 노래를 부르며 여행자가 그리워하는 것 — 고향, 가족, 연인 — 의 소리를 흉내 내기도 한다. 노래를 한 구절씩 흘려 다가오게 만들고, 유혹에 홀린 희생자를 점점 더 깊은 모래 속이나 구덩이로 유인한다.</p>
+    </div>
+
+    <div class="beast filled reveal"><div class="b-img"><img src="img/beast_steeljaw.webp" alt="강철 이빨" loading="lazy"></div><span class="b-no">No.04</span><p class="b-type">탐욕스러운 청소부</p><h3>강철 이빨</h3>
+      <p class="b-label">외형</p>
+      <p class="b-desc">회색 털과 회색 갈기의 하이에나형 야수. 붉은 눈, 위아래로 크게 벌어지는 턱과 날카로운 이빨, 긴 발톱을 지녔다.</p>
+      <p class="b-label">특징</p>
+      <p class="b-desc">여러 마리가 무리 지어 다니며, 멀리 있는 피 냄새도 알아챈다. 주로 혼자 있는 상대를 노리고, 여럿이거나 강해 보이면 잘 덤비지 않는다. 턱 힘이 매우 강해 뼈를 가볍게 으스러뜨리며, 지나간 자리에는 피나 뼛조각 하나 남지 않는다.</p>
+    </div>
+
+    <div class="beast filled reveal"><div class="b-img"><img src="img/beast_rock.webp" alt="숨 쉬는 바위" loading="lazy"></div><span class="b-no">No.05</span><p class="b-type">숨어있는 공포</p><h3>숨 쉬는 바위</h3>
+      <p class="b-label">외형</p>
+      <p class="b-desc">커다란 바위나 둔덕의 형태. 때로는 푸른 녹지나 평범한 모래 더미의 모습을 갖추기도 하며, 매우 커다란 입을 지녔다.</p>
+      <p class="b-label">특징</p>
+      <p class="b-desc">이동이 느려, 사냥할 때는 가만히 엎드려 위장한다. 먹이가 가까이 오면 재빨리 입을 벌려 통째로 빨아들인다.</p>
+      <p class="b-label">소화</p>
+      <p class="b-desc">뱃속에 들어온 생물은 쉽게 빠져나가지 못하며, 7일에 걸쳐 천천히 소화된다. 섭취 후 소화가 끝날 때까지 그 자리에서 바위처럼 움직이지 않는다.</p>
+    </div>
+
+    <div class="beast filled reveal"><div class="b-img"><img src="img/beast_spider.webp" alt="외눈 거미" loading="lazy"></div><span class="b-no">No.06</span><p class="b-type">고요한 은둔자</p><h3>외눈 거미</h3>
+      <p class="b-label">외형</p>
+      <p class="b-desc">상체는 인간형, 하체는 거미의 몸. 하나의 눈과 두 쌍의 인간 팔, 커다란 거미 입을 지녔다. 부숭부숭한 검은 털로 뒤덮여 있다.</p>
+      <p class="b-label">특징</p>
+      <p class="b-desc">깊은 굴 속에 서식하며 입구 근처에 함정을 설치해 먹이를 잡는다. 혼종과 비슷한 외형 탓에 자주 착각당하는데, 이는 방심을 부르는 형태로 진화한 결과다.</p>
+    </div>
+
+    <div class="beast filled god reveal"><div class="b-img"><img src="img/beast_whitesandgod.webp" alt="순백의 모래 신" loading="lazy"></div><span class="b-no">No.07</span><p class="b-type">태고족의 신 · 경이로운 대지의 조각</p><h3>순백의 모래 신</h3>
+      <p class="b-label">특징</p>
+      <p class="b-desc">두께 40m, 길이 500m에 달하는, 모래 아래를 기어 다니는 거대한 백사(白蛇) 형태의 야수. 모래와 광물을 섭취하고 백색 모래를 배설해, 지나간 자리에는 흰 모래가 남는다. 아주 단단한 백색 비늘을 지니며, 종종 떨어지는 비늘은 태고족의 무기·방어구·장신구로 쓰인다. 한곳에 머무르지 않고 카르바라 전역을 끊임없이 돌아다닌다.</p>
+      <p class="b-label">과거</p>
+      <p class="b-desc">사가의 해 이전부터 존재했던 야수. 태초부터 모든 야수가 두려워하고 경배했다는 생물체다.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════ SECTION 5 : LORE ═══════════ -->
+<section id="lore">
+  <p class="kicker reveal">05 · Lore</p>
+  <h2 class="sec-title reveal">사막의 기록</h2>
+  <p class="sec-sub reveal">모래숨의 시대를 이해하기 위한 고유 명사들.</p>
+  <div class="lore-grid">
+
+    <div class="lore reveal" data-num="01">
+      <p class="l-en">Hybrids</p>
+      <h3>혼종</h3>
+      <p>동물과 인간의 모습이 섞인 이 사막의 주민들. 도시 밖에서의 생존은 극히 어려우며, 물은 무엇보다 귀하다. 모두가 주기적으로 <b>허물앓이</b>를 겪는다.</p>
+    </div>
+
+    <div class="lore reveal" data-num="02">
+      <p class="l-en">Era of Sagas</p>
+      <h3>사가의 해</h3>
+      <p>신이 아직 지상에 머물며 인간, 혼종들과 함께했던 시대를 일컫는 말. 모래숨력이 시작되기 이전의 시대(기원전)를 뜻한다.</p>
+    </div>
+
+    <div class="lore reveal" data-num="03">
+      <p class="l-en">Sand-breath</p>
+      <h3>모래숨</h3>
+      <p><b>① 시간 단위</b> — 신이 떠나고 사막화가 시작된 해를 '모래숨 1년'으로 삼는 기년법. "대지가 N번 모래숨을 쉬었다"고 표현한다.</p>
+      <p><b>② 시어의 수명</b> — 시어가 앞으로 감당할 수 있는 의식의 횟수, 곧 남은 수명을 비유하는 말이기도 하다.</p>
+    </div>
+
+    <div class="lore reveal" data-num="04">
+      <p class="l-en">Celestial Flame</p>
+      <h3>하늘의 불꽃</h3>
+      <p>과거 신이 인간과의 유대를 상징하며 남긴 성물이자, 비를 내리는 힘의 근원. 현재 여명 부족 신전 최상층에 보관되어 있으며, 시어는 이 불꽃을 들이마시는 의식을 통해 비를 내린다.</p>
+      <p>여명은 이를 <b>신성한 유산</b>으로 보호하고, 새벽은 인류를 낡은 믿음에 옭아매는 <b>족쇄</b>로 여겨 파괴하려 한다.</p>
+    </div>
+
+    <div class="lore reveal" data-num="05">
+      <p class="l-en">Seer</p>
+      <h3>시어</h3>
+      <p>'하늘의 불꽃'을 품고 그 숨결로 비를 내리는 존재. 오직 신과 인연을 맺었던 소녀의 혈통만이 시어가 될 수 있다. 의식을 치를 때마다 극심한 고통과 함께 수명이 줄어 대부분 단명한다.</p>
+      <p>여명에게는 생존을 위한 필수적인 존재이자 <b>가장 귀한 희생양</b>. 신전 가장 깊은 곳에서 외부와 단절된 채 살아간다.</p>
+    </div>
+
+    <div class="lore reveal" data-num="06">
+      <p class="l-en">Molting Sickness</p>
+      <h3>허물앓이</h3>
+      <p>혼종들이 주기적으로 겪는 탈피 과정이자 질병. 정상적인 탈피 기간에도 몸이 극도로 쇠약해져 무력화된다.</p>
+      <p><b>부전 탈피</b> — 탈피가 제대로 이루어지지 않으면 굳어버린 껍질이 몸을 으스러뜨리는 작열통과 함께 이성을 잃고 괴물처럼 변해 타인의 체액을 갈망하게 된다. 혼종들에게 가장 큰 공포 중 하나.</p>
+    </div>
+
+    <div class="lore reveal" data-num="07">
+      <p class="l-en">Marauders</p>
+      <h3>약탈자</h3>
+      <p>부족에 소속되지 않고 도시 밖 황무지를 떠도는 무법자들. 생존을 위해 다른 이들을 습격하고 목을 물어뜯어 수분(피)을 섭취하는, 잔혹하고 위험한 존재들이다.</p>
+    </div>
+
+  </div>
+</section>
+</main>
+<footer>
+  <video class="f-flame-vid" autoplay muted loop playsinline aria-hidden="true">
+    <source src="flame_web.webm" type="video/webm">
+    <source src="flame_web.mp4" type="video/mp4">
+  </video>
+  <p>모래는 신이 떠난 자리에 남은 유일한 증인이다.</p>
+  <p class="copy">REQUIEM OF THE SANDS · WORLD ARCHIVE · ALL RIGHTS RESERVED</p>
+</footer>
+
+<!-- ═══════════ CHARACTER MODAL ═══════════ -->
+<div id="modal-bg" role="dialog" aria-modal="true">
+  <div id="modal">
+    <button id="modal-close" aria-label="닫기">✕</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<audio id="bgm" src="bgm.mp3" loop preload="auto"></audio>
+
+<script>
+/* ═══════════ bgm ═══════════ */
+(function(){
+  const audio=document.getElementById('bgm');
+  const btn=document.getElementById('bgm-btn');
+  const TARGET=.35;
+  let fadeTimer=null,userOff=false;
+  function fade(to,then){
+    clearInterval(fadeTimer);
+    fadeTimer=setInterval(()=>{
+      const d=to-audio.volume;
+      if(Math.abs(d)<.03){audio.volume=to;clearInterval(fadeTimer);if(then)then();return;}
+      audio.volume+=d*.15;
+    },50);
+  }
+  function start(){
+    if(!audio.paused||userOff)return Promise.resolve();
+    audio.volume=0;
+    return audio.play().then(()=>{fade(TARGET);btn.classList.add('on');});
+  }
+  /* 입장 시 자동 재생 시도 → 차단되면 상호작용마다 재시도, 성공해야 리스너 해제 */
+  const EVTS=['pointerdown','keydown','touchstart','wheel','scroll','click'];
+  function cleanup(){EVTS.forEach(e=>removeEventListener(e,kick));}
+  function kick(){start().then(()=>{if(!audio.paused)cleanup();}).catch(()=>{});}
+  start().catch(()=>{EVTS.forEach(e=>addEventListener(e,kick,{passive:true}));});
+  btn.addEventListener('click',e=>{
+    e.stopPropagation();
+    if(audio.paused){
+      userOff=false;
+      start().catch(()=>{});
+    }else{
+      userOff=true;
+      fade(0,()=>audio.pause());
+      btn.classList.remove('on');
+    }
+  });
+})();
+
+/* ═══════════ character data ═══════════ */
+const CHARS = {
+ansir:{
+  card:'img/ansir_card.webp',
+  faction:'여명의 상속자', fc:'dawn', name:'안시르', role:'여명의 지도자 · 신의 시대를 기억하는 유일한 자',
+  tags:['38세','190cm','키메라 혼종','INFP'],
+  personality:['어른스럽고 차분하며, 권위와 카리스마 속에 다정함과 자비를 품고 있다.','그러나 대의 — 불꽃을 지키는 일 — 을 위해서라면 무엇이든, 시어조차 희생할 수 있다.','경고하거나 분노할 때는 극도로 서늘하고 건조해진다.'],
+  quotes:['우리는 이 짐을 내려놓을 권리가 없습니다. 불꽃이 꺼지는 순간, 세계는 사막에 먹히고 말 테니까요.'],
+  abilities:[['천체 관측','별과 하늘을 읽어 기후의 변화를 감지한다'],['추억','물건을 영구히 보존한다']]
+},
+jahan:{
+  card:'img/jahan_card.webp',
+  faction:'여명의 상속자', fc:'dawn', name:'자한', role:'여명의 수호자 · 시어의 호위',
+  tags:['24세','186cm','도마뱀 혼종','ISFJ'],
+  personality:['과묵하여 사적인 대화나 농담을 하지 않는다.','시어에 대한 깊은 연민을 품고 있어, 의식이 치러질 때마다 마음 아파한다.','시어와 안시르를 제외한 이들에게는 약간 까칠하다. 주군 안시르에게 절대적으로 복종하며, 시어를 지키는 임무에 모든 것을 걸었다.'],
+  quotes:['모래는 모든 것을 기억한다. 발소리, 피 냄새, 심장이 뛰는 미세한 진동까지도. 내 감각을 속일 순 없어.'],
+  abilities:[['모래 조종','모래를 자유로이 다룬다'],['육감','모래의 진동으로 주변을 감지한다']]
+},
+karim:{
+  card:'img/karim_card.webp',
+  faction:'새벽의 발자국', fc:'dusk', name:'카림', role:'새벽의 지도자 · 검은 날개의 전략가',
+  tags:['142세','195cm','까마귀 혼종','INTJ'],
+  personality:['고요하고 냉정하며, 카리스마와 이성으로 움직이는 계산적인 전략가.','과거 여명 소속이었으나 첫 시어였던 누나의 죽음을 계기로 신의 유산을 파괴하기로 결심했다. 안시르에게 깊은 증오를 품고 있다.'],
+  quotes:['그 불꽃이 꺼지는 순간, 여명은 자신들이 숭배하던 허상과 마주하게 되겠지.<br>하지만 우리 역시, 신의 그림자를 완전히 지워낸 세상에서 살아가는 법을 증명해야 할 것이다.'],
+  abilities:[['돌풍','바람을 자유롭게 다룬다'],['넓은 시야','10m — 어둠의 영향을 받지 않는다']]
+},
+garban:{
+  card:'img/garban_card.webp',
+  faction:'새벽의 발자국', fc:'dusk', name:'가르반', role:'새벽의 암살자 · 카림의 검',
+  tags:['25세','182cm','전갈 혼종','ISTP'],
+  personality:['냉소적이고 침착하며 비관적. 쓸데없는 감정 소모를 하지 않는다.','모두에게 거리를 두지만, 한 번 인정한 동료는 몰래 챙긴다. 예리하고 냉소적인 유머의 소유자.','과거 여명 소속이었으나 환멸을 느끼고 떠났고, 그때 카림에게 구원받았기에 그를 깊이 신뢰한다.'],
+  quotes:['선악을 따지는 건 배부른 놈들이나 하는 소리지.<br>당장 숨통을 조이는 게 모래인지 밧줄인지가 더 중요할 뿐.'],
+  abilities:[['은신','어둠 속에서는 절대 감지되지 않는다'],['전갈 독','찔리거나 섭취 시 마비를 일으킨다']]
+},
+rakasha:{
+  card:'img/rakasha_card.webp',
+  faction:'태고족 혼혈', fc:'scale', name:'라카샤', role:'용병 · 신을 사냥하는 자',
+  tags:['30세','2m','태고족 혼혈','ISTP'],
+  personality:['권위적이고 약자를 멸시하며, 까칠하고 무뚝뚝하다. 오직 자기 일에만 관심이 있다.','순수 혈통이 아니라는 이유로 부족에서 쫓겨났다. 자신의 힘을 증명하기 위해 태고족의 신 \'순백의 모래 신\'을 사냥하는 것을 평생의 숙원으로 삼았다.','돈이 되는 일이라면 무엇이든 하는 실력 좋은 용병.'],
+  quotes:['신이라고 별거 있나? 피 흘리면 그저 사냥감일 뿐이지.<br>그놈 목을 따서 부족 놈들 면상에 처박는 날, 누가 진짜 \'결함품\'인지 똑똑히 보게 될 거다.'],
+  abilities:[['이능 없음','기적에 닿지 않은 몸 — 오직 단련된 신체와 전투 감각만으로 사막을 살아남는다']]
+}
+};
+
+/* ═══════════ modal ═══════════ */
+const modalBg=document.getElementById('modal-bg');
+const modalContent=document.getElementById('modal-content');
+document.querySelectorAll('.char-card').forEach(card=>{
+  card.addEventListener('click',()=>{
+    const c=CHARS[card.dataset.char]; if(!c)return;
+    modalContent.innerHTML=`
+      <img class="m-card" src="${c.card}" alt="${c.name} 명함">
+      <div class="m-head">
+        <p class="c-faction ${c.fc}">${c.faction}</p>
+        <h3>${c.name}</h3>
+        <p class="m-role">${c.role}</p>
+        <div class="m-tags">${c.tags.map(t=>`<span>${t}</span>`).join('')}</div>
+      </div>
+      <div class="m-body">
+        <div class="m-sec"><h4>성격</h4><ul>${c.personality.map(p=>`<li>${p}</li>`).join('')}</ul></div>
+        <div class="m-sec"><h4>어록</h4>${c.quotes.map(q=>`<div class="m-quote">"${q}"</div>`).join('')}</div>
+        <div class="m-sec"><h4>능력</h4><div class="m-ability">${c.abilities.map(a=>`<div><b>${a[0]}</b><span>${a[1]}</span></div>`).join('')}</div></div>
+      </div>`;
+    modalBg.classList.add('open');
+    document.body.style.overflow='hidden';
+    document.getElementById('modal').scrollTop=0;
+  });
+});
+function closeModal(){modalBg.classList.remove('open');document.body.style.overflow='';}
+document.getElementById('modal-close').addEventListener('click',closeModal);
+modalBg.addEventListener('click',e=>{if(e.target===modalBg)closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+/* ═══════════ reveal on scroll ═══════════ */
+const io=new IntersectionObserver(entries=>{
+  entries.forEach(en=>{if(en.isIntersecting){en.target.classList.add('visible');io.unobserve(en.target);}});
+},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+/* ═══════════ nav ═══════════ */
+const links=document.querySelectorAll('.nav-links a');
+const secs=[...links].map(a=>document.querySelector(a.getAttribute('href')));
+window.addEventListener('scroll',()=>{
+  const y=window.scrollY+120;
+  let idx=0;
+  secs.forEach((s,i)=>{if(s&&s.offsetTop<=y)idx=i;});
+  links.forEach((a,i)=>a.classList.toggle('active',i===idx));
+},{passive:true});
+const menuBtn=document.getElementById('menu-btn');
+const navLinks=document.getElementById('nav-links');
+menuBtn.addEventListener('click',()=>navLinks.classList.toggle('open'));
+links.forEach(a=>a.addEventListener('click',()=>navLinks.classList.remove('open')));
+
+/* ═══════════ sand particles ═══════════ */
+const cv=document.getElementById('sand'),ctx=cv.getContext('2d');
+let W,H;function resize(){W=cv.width=innerWidth;H=cv.height=innerHeight;}
+resize();addEventListener('resize',resize);
+const mouse={x:-999,y:-999};
+addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;});
+addEventListener('mouseleave',()=>{mouse.x=-999;mouse.y=-999;});
+
+const N=90,parts=[];
+for(let i=0;i<N;i++)parts.push(newPart(true));
+function newPart(anywhere){
+  return{
+    x:Math.random()*innerWidth,
+    y:anywhere?Math.random()*innerHeight:innerHeight+6,
+    vx:.15+Math.random()*.5,
+    vy:-(.05+Math.random()*.28),
+    r:.5+Math.random()*1.4,
+    o:.06+Math.random()*.3,
+    blue:Math.random()<.22,
+    drift:Math.random()*Math.PI*2
+  };
+}
+/* mouse burst grains */
+const burst=[];
+let lastMx=0,lastMy=0;
+addEventListener('mousemove',e=>{
+  const dx=e.clientX-lastMx,dy=e.clientY-lastMy;
+  const speed=Math.hypot(dx,dy);
+  if(speed>4&&burst.length<120){
+    for(let i=0;i<Math.min(3,speed/8);i++){
+      burst.push({
+        x:e.clientX+(Math.random()-.5)*14,
+        y:e.clientY+(Math.random()-.5)*14,
+        vx:dx*.04+(Math.random()-.5)*.8,
+        vy:dy*.04+(Math.random()-.5)*.8-.3,
+        r:.4+Math.random()*1.1,
+        life:1,
+        blue:Math.random()<.35
+      });
+    }
+  }
+  lastMx=e.clientX;lastMy=e.clientY;
+});
+function tick(){
+  ctx.clearRect(0,0,W,H);
+  /* ambient sand */
+  for(const p of parts){
+    p.drift+=.008;
+    p.x+=p.vx+Math.sin(p.drift)*.18;
+    p.y+=p.vy;
+    /* gentle push away from cursor */
+    const dx=p.x-mouse.x,dy=p.y-mouse.y,d2=dx*dx+dy*dy;
+    if(d2<9000){const f=(9000-d2)/9000*.5;p.x+=dx/Math.sqrt(d2+1)*f;p.y+=dy/Math.sqrt(d2+1)*f;}
+    if(p.x>W+8)p.x=-8;
+    if(p.y<-8){Object.assign(p,newPart(false));}
+    ctx.globalAlpha=p.o;
+    ctx.fillStyle=p.blue?'#00E5FF':'#b9a67d';
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.fill();
+  }
+  /* burst grains */
+  for(let i=burst.length-1;i>=0;i--){
+    const b=burst[i];
+    b.x+=b.vx;b.y+=b.vy;b.vy+=.02;b.life-=.018;
+    if(b.life<=0){burst.splice(i,1);continue;}
+    ctx.globalAlpha=b.life*.5;
+    ctx.fillStyle=b.blue?'#00E5FF':'#d8c69a';
+    ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,7);ctx.fill();
+  }
+  ctx.globalAlpha=1;
+  requestAnimationFrame(tick);
+}
+tick();
+</script>
+</body>
+</html>
