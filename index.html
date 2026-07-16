@@ -890,7 +890,7 @@ footer .copy{font-family:var(--sans);font-size:.68rem;letter-spacing:.3em;margin
     return audio.play().then(()=>{fade(TARGET);btn.classList.add('on');});
   }
   /* 입장 시 자동 재생 시도 → 차단되면 상호작용마다 재시도, 성공해야 리스너 해제 */
-  const EVTS=['pointerdown','keydown','touchstart','wheel','scroll','click'];
+  const EVTS=['pointerdown','pointerup','touchend','keydown','touchstart','wheel','scroll','click'];
   function cleanup(){EVTS.forEach(e=>removeEventListener(e,kick));}
   function kick(){start().then(()=>{if(!audio.paused)cleanup();}).catch(()=>{});}
   start().catch(()=>{EVTS.forEach(e=>addEventListener(e,kick,{passive:true}));});
