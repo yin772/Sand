@@ -203,6 +203,53 @@ h2.sec-title{
   margin-top:18px;padding-top:16px;border-top:1px dashed var(--line);
   font-family:var(--serif);font-size:.85rem;color:var(--text);font-style:italic;
 }
+/* ===== myth (기록 보관소 · 벽화) ===== */
+.myth-wrap{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:clamp(70px,10vh,120px)}
+.myth-panel{text-align:center}
+.myth-no{
+  font-size:.68rem;letter-spacing:.44em;color:var(--text-dim);margin-bottom:20px;
+  display:flex;align-items:center;justify-content:center;gap:16px;
+}
+.myth-no::before,.myth-no::after{content:'';width:36px;height:1px;background:var(--line)}
+.myth-stone{
+  position:relative;border:1px solid var(--line);padding:clamp(14px,3vw,30px);
+  background:
+    radial-gradient(ellipse 60% 50% at 30% 20%,rgba(248,249,250,.022),transparent),
+    radial-gradient(ellipse 50% 60% at 75% 80%,rgba(201,168,106,.02),transparent),
+    repeating-linear-gradient(2deg,transparent 0 3px,rgba(0,0,0,.14) 3px 4px),
+    #16150f;
+  box-shadow:inset 0 0 60px rgba(0,0,0,.55),0 14px 40px rgba(0,0,0,.35);
+}
+.myth-stone svg{display:block;width:100%;height:auto;opacity:.94}
+.myth-stone.img-stone{padding:0;background:none}
+.myth-stone.img-stone img{display:block;width:100%;height:auto}
+.myth-verse{
+  font-family:var(--serif);font-size:clamp(.95rem,2vw,1.1rem);line-height:2.6;
+  color:var(--text);letter-spacing:.08em;margin-top:28px;
+}
+.myth-verse b{color:var(--marble);font-weight:400}
+.myth-verse .gold{color:var(--gold)}
+.myth-verse .cyan{color:var(--flame);text-shadow:0 0 10px var(--flame-dim)}
+.myth-fin{
+  text-align:center;font-family:var(--serif);
+  font-size:clamp(1.02rem,2.2vw,1.25rem);line-height:3;letter-spacing:.12em;
+  color:var(--marble);padding:30px 20px 0;
+}
+.myth-fin .cyan{color:var(--flame);text-shadow:0 0 14px var(--flame-dim)}
+.myth-viewer{position:relative;overflow:hidden;transition:max-height .8s ease}
+.myth-viewer.collapsed{max-height:860px}
+.myth-viewer.collapsed::after{
+  content:'';position:absolute;left:0;right:0;bottom:0;height:240px;pointer-events:none;
+  background:linear-gradient(to bottom,transparent,var(--bg) 94%);
+}
+.myth-btn{
+  display:block;margin:34px auto 0;padding:15px 60px;cursor:pointer;
+  background:rgba(0,229,255,.03);border:1px solid var(--line);
+  color:var(--flame);font-family:var(--sans);font-size:.78rem;letter-spacing:.4em;text-indent:.4em;
+  transition:background .3s,border-color .3s,letter-spacing .3s;
+}
+.myth-btn:hover{background:rgba(0,229,255,.08);border-color:var(--flame-dim);letter-spacing:.5em}
+
 /* ===== characters ===== */
 .char-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:20px}
 .char-card{
@@ -416,6 +463,7 @@ footer .copy{font-family:var(--sans);font-size:.68rem;letter-spacing:.3em;margin
     <button id="bgm-btn" aria-label="배경음악 켜기/끄기" title="배경음악"><span class="bgm-ico">♪</span><span class="bgm-bars"><i></i><i></i><i></i></span></button>
     <ul class="nav-links" id="nav-links">
       <li><a href="#hero">인트로</a></li>
+      <li><a href="#myth">기록 보관소</a></li>
       <li><a href="#characters">모래의 잔상들</a></li>
       <li><a href="#regions">사막의 이정표</a></li>
       <li><a href="#beasts">사막의 재앙</a></li>
@@ -476,9 +524,78 @@ footer .copy{font-family:var(--sans);font-size:.68rem;letter-spacing:.3em;margin
     </div>
   </div>
 </section>
-<!-- ═══════════ SECTION 2 : CHARACTERS ═══════════ -->
+<!-- ═══════════ SECTION 2 : MYTH (기록 보관소) ═══════════ -->
+<section id="myth">
+  <p class="kicker reveal">02 · Archive</p>
+  <h2 class="sec-title reveal">기록 보관소</h2>
+  <p class="sec-sub reveal">사막 깊은 곳에서 발굴된 첫 번째 벽, 「껍데기의 신화」. 세월에 마모되어 다섯 장면만이 남아 있다.</p>
+  <div class="myth-viewer collapsed" id="myth-viewer">
+  <div class="myth-wrap">
+
+    <div class="myth-panel reveal">
+      <div class="myth-stone img-stone"><img src="img/mural_1.webp" alt="제1벽 — 추락한 신" loading="lazy"></div>
+      <p class="myth-verse">
+        그것은 태초의 절망 — 이형(異形)의 것들이 서로를 뜯어먹던 황무지의 시대였노라.<br>
+        어느 날 하늘이 찢어지고, <b>맹수의 형상을 한 신</b>이 추락하였느니.<br>
+        허나 오직 한 소녀만이, 그 거대한 공포 앞에 발을 딛었노라.
+      </p>
+    </div>
+
+    <div class="myth-panel reveal">
+      <div class="myth-stone img-stone"><img src="img/mural_2.webp" alt="제2벽 — 세 가지 기적" loading="lazy"></div>
+      <p class="myth-verse">
+        신은 그 온기에 보답하고자, 세 가지 기적을 약속하였도다.<br>
+        <span class="gold">첫 번째 염원</span> — 이 혹독한 세계에서 살아남을 권능을.<br>
+        무리에게는 맹렬한 힘이 깃들고, 소녀의 손에는<br>
+        비를 부르는 불꽃, <span class="cyan">'하늘의 불꽃'</span>이 내렸으니.
+      </p>
+    </div>
+
+    <div class="myth-panel reveal">
+      <div class="myth-stone img-stone"><img src="img/mural_3.webp" alt="제3벽 — 껍데기와 번영" loading="lazy"></div>
+      <p class="myth-verse">
+        허나 주어진 힘은 불신을 낳고, 이형의 낯은 혐오의 씨앗이 되었음이라.<br>
+        <span class="gold">두 번째 염원</span> — 추악한 투쟁을 멈출, 부드러운 껍데기를.<br>
+        신은 그들에게 <b>인간의 외피</b>를 입혀 하나로 묶으셨으니,<br>
+        마침내 어둠 속에서 유례없는 번영이 피어났노라.<br><br>
+        …허나 <b>세 번째 염원</b>이 무엇이었는지는,<br>
+        그 어떤 신화의 비석에도 새겨지지 않았음이라.
+      </p>
+    </div>
+
+    <div class="myth-panel reveal">
+      <div class="myth-stone img-stone"><img src="img/mural_4.webp" alt="제4벽 — 신의 부재" loading="lazy"></div>
+      <p class="myth-verse">
+        신은 수백 년을 머물다 — 어느 날, 흔적 없이 사라졌도다.<br>
+        <span class="cyan">사그라지지 않는 불꽃</span>만을 버려둔 채.<br>
+        비는 그쳤고 강은 숨을 거두었으니, 대지가 <b>첫 모래숨</b>을 쉬던 그날 세계는 사막이 되었노라.<br>
+        신성이 흐려지자 거짓된 껍데기에 금이 가고,<br>
+        괴물과 인간의 육신이 뒤섞인 <b>혼돈</b>이 태어났느니.
+      </p>
+    </div>
+
+    <div class="myth-panel reveal">
+      <div class="myth-stone img-stone"><img src="img/mural_5.webp" alt="제5벽 — 찢어진 유산" loading="lazy"></div>
+      <p class="myth-verse">
+        무너져가는 부족을 구하고자, 오랜 지도자와 한 청년이 손을 잡았으나 —<br>
+        인과란 얼마나 잔혹한가. 구원의 갈망은 핏빛으로 얼룩졌으니.<br>
+        끝내 결속은 찢어지고, 한 뿌리였던 이들은 서로에게 등을 돌렸노라.
+      </p>
+    </div>
+
+    <div class="myth-fin reveal">
+      …세월은 모든 이름을 모래에 묻었으되,<br>
+      그날의 <span class="cyan">불꽃</span>은 아직도 침묵 속에서 타오르고 있노라.
+    </div>
+
+  </div>
+  </div>
+  <button class="myth-btn" id="myth-btn">벽을 펼쳐 읽기 ▾</button>
+</section>
+
+<!-- ═══════════ SECTION 3 : CHARACTERS ═══════════ -->
 <section id="characters">
-  <p class="kicker reveal">02 · Characters</p>
+  <p class="kicker reveal">03 · Characters</p>
   <h2 class="sec-title reveal">모래의 잔상들</h2>
   <p class="sec-sub reveal">모래 위에 발자국을 남기는 자들. 카드를 선택하면 기록을 열람할 수 있습니다.</p>
   <div class="char-grid">
@@ -546,9 +663,9 @@ footer .copy{font-family:var(--sans);font-size:.68rem;letter-spacing:.3em;margin
   </div>
 </section>
 
-<!-- ═══════════ SECTION 3 : REGIONS ═══════════ -->
+<!-- ═══════════ SECTION 4 : REGIONS ═══════════ -->
 <section id="regions">
-  <p class="kicker reveal">03 · Regions</p>
+  <p class="kicker reveal">04 · Regions</p>
   <h2 class="sec-title reveal">사막의 이정표</h2>
   <p class="sec-sub reveal">모래 바다 위에 흩어진 삶의 좌표들.</p>
   <div class="region-list">
@@ -610,9 +727,9 @@ footer .copy{font-family:var(--sans);font-size:.68rem;letter-spacing:.3em;margin
   </div>
 </section>
 
-<!-- ═══════════ SECTION 4 : BEASTS ═══════════ -->
+<!-- ═══════════ SECTION 5 : BEASTS ═══════════ -->
 <section id="beasts">
-  <p class="kicker reveal">04 · Beasts</p>
+  <p class="kicker reveal">05 · Beasts</p>
   <h2 class="sec-title reveal">사막의 재앙</h2>
   <p class="sec-sub reveal">도시 밖의 모래는 굶주려 있다. 생환자들의 증언을 모아 복원한 기록.</p>
   <div class="beast-grid">
@@ -661,7 +778,7 @@ footer .copy{font-family:var(--sans);font-size:.68rem;letter-spacing:.3em;margin
       <p class="b-desc">깊은 굴 속에 서식하며 입구 근처에 함정을 설치해 먹이를 잡는다. 혼종과 비슷한 외형 탓에 자주 착각당하는데, 이는 방심을 부르는 형태로 진화한 결과다.</p>
     </div>
 
-    <div class="beast filled god reveal"><div class="b-img"><img src="img/beast_whitesandgod.webp" alt="순백의 모래 신" loading="lazy"></div><span class="b-no">No.07</span><p class="b-type">태고족의 신 · 경이로운 대지의 조각</p><h3>순백의 모래 신</h3>
+    <div class="beast filled god reveal"><div class="b-img"><img src="img/beast_whitesandgod.webp" alt="순백의 모래 신" loading="lazy" style="object-position:center 26%"></div><span class="b-no">No.07</span><p class="b-type">태고족의 신 · 경이로운 대지의 조각</p><h3>순백의 모래 신</h3>
       <p class="b-label">특징</p>
       <p class="b-desc">두께 40m, 길이 500m에 달하는, 모래 아래를 기어 다니는 거대한 백사(白蛇) 형태의 야수. 모래와 광물을 섭취하고 백색 모래를 배설해, 지나간 자리에는 흰 모래가 남는다. 아주 단단한 백색 비늘을 지니며, 종종 떨어지는 비늘은 태고족의 무기·방어구·장신구로 쓰인다. 한곳에 머무르지 않고 카르바라 전역을 끊임없이 돌아다닌다.</p>
       <p class="b-label">과거</p>
@@ -671,9 +788,9 @@ footer .copy{font-family:var(--sans);font-size:.68rem;letter-spacing:.3em;margin
   </div>
 </section>
 
-<!-- ═══════════ SECTION 5 : LORE ═══════════ -->
+<!-- ═══════════ SECTION 6 : LORE ═══════════ -->
 <section id="lore">
-  <p class="kicker reveal">05 · Lore</p>
+  <p class="kicker reveal">06 · Lore</p>
   <h2 class="sec-title reveal">사막의 기록</h2>
   <p class="sec-sub reveal">모래숨의 시대를 이해하기 위한 고유 명사들.</p>
   <div class="lore-grid">
@@ -722,6 +839,12 @@ footer .copy{font-family:var(--sans);font-size:.68rem;letter-spacing:.3em;margin
       <p class="l-en">Marauders</p>
       <h3>약탈자</h3>
       <p>부족에 소속되지 않고 도시 밖 황무지를 떠도는 무법자들. 생존을 위해 다른 이들을 습격하고 목을 물어뜯어 수분(피)을 섭취하는, 잔혹하고 위험한 존재들이다.</p>
+    </div>
+
+    <div class="lore reveal" data-num="08">
+      <p class="l-en">Salt Tears</p>
+      <h3>소금 눈물</h3>
+      <p>소금 대평원에서 채굴·정제한 눈물 모양의 소금 결정. 갈증을 억제해 주는 생존 도구이자, 사막 전역에서 통용되는 <b>화폐</b>다.</p>
     </div>
 
   </div>
@@ -856,6 +979,30 @@ function closeModal(){modalBg.classList.remove('open');document.body.style.overf
 document.getElementById('modal-close').addEventListener('click',closeModal);
 modalBg.addEventListener('click',e=>{if(e.target===modalBg)closeModal();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+/* ═══════════ myth expand/collapse ═══════════ */
+(function(){
+  const v=document.getElementById('myth-viewer');
+  const btn=document.getElementById('myth-btn');
+  if(!v||!btn)return;
+  btn.addEventListener('click',()=>{
+    if(v.classList.contains('collapsed')){
+      v.style.maxHeight=v.scrollHeight+'px';
+      v.classList.remove('collapsed');
+      btn.textContent='벽을 덮기 ▴';
+      setTimeout(()=>{if(!v.classList.contains('collapsed'))v.style.maxHeight='none';},850);
+    }else{
+      v.style.maxHeight=v.scrollHeight+'px';
+      void v.offsetHeight;
+      v.style.maxHeight='860px';
+      v.classList.add('collapsed');
+      btn.textContent='벽을 펼쳐 읽기 ▾';
+      const top=document.getElementById('myth').getBoundingClientRect().top+window.scrollY+40;
+      window.scrollTo({top,behavior:'smooth'});
+      setTimeout(()=>{v.style.maxHeight='';},850);
+    }
+  });
+})();
 
 /* ═══════════ reveal on scroll ═══════════ */
 const io=new IntersectionObserver(entries=>{
