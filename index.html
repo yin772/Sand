@@ -81,13 +81,30 @@ nav{
 .nav-links a:hover::after,.nav-links a.active::after{width:100%}
 #menu-btn{display:none;background:none;border:none;color:var(--marble);font-size:1.4rem;cursor:pointer}
 .nav-right{display:flex;align-items:center;gap:clamp(14px,2.2vw,28px)}
+#bgm-ctrl{
+  display:flex;align-items:center;
+  border:1px solid var(--line);border-radius:20px;padding:6px 14px;
+  transition:border-color .3s;
+}
+#bgm-ctrl:hover{border-color:var(--flame-dim)}
 #bgm-btn{
   display:flex;align-items:center;gap:8px;
-  background:none;border:1px solid var(--line);border-radius:20px;
-  padding:6px 14px;cursor:pointer;color:var(--text-dim);
-  transition:border-color .3s,color .3s;
+  background:none;border:none;padding:0;cursor:pointer;color:var(--text-dim);
+  transition:color .3s;
 }
-#bgm-btn:hover{border-color:var(--flame-dim);color:var(--marble)}
+#bgm-btn:hover{color:var(--marble)}
+#bgm-vol{
+  -webkit-appearance:none;appearance:none;
+  width:0;opacity:0;height:3px;border-radius:2px;outline:none;cursor:pointer;
+  background:linear-gradient(90deg,var(--flame) var(--fill,35%),rgba(248,249,250,.15) var(--fill,35%));
+  transition:width .35s ease,opacity .35s ease,margin-left .35s ease;
+}
+#bgm-ctrl.on #bgm-vol{width:74px;opacity:1;margin-left:12px}
+#bgm-vol::-webkit-slider-thumb{
+  -webkit-appearance:none;width:11px;height:11px;border-radius:50%;
+  background:var(--flame);box-shadow:0 0 8px var(--flame-dim);border:none;
+}
+#bgm-vol::-moz-range-thumb{width:11px;height:11px;border-radius:50%;background:var(--flame);border:none}
 #bgm-btn .bgm-ico{font-size:.95rem;line-height:1}
 #bgm-btn.on{color:var(--flame);border-color:var(--flame-dim)}
 .bgm-bars{display:flex;align-items:flex-end;gap:2px;height:12px}
@@ -467,7 +484,10 @@ footer .copy{font-family:var(--sans);font-size:.68rem;letter-spacing:.3em;margin
 <nav id="nav">
   <a class="nav-logo" href="#hero"><span class="flame-dot"></span>모래의 진혼곡</a>
   <div class="nav-right">
-    <button id="bgm-btn" aria-label="배경음악 켜기/끄기" title="배경음악"><span class="bgm-ico">♪</span><span class="bgm-bars"><i></i><i></i><i></i></span></button>
+    <div id="bgm-ctrl">
+      <button id="bgm-btn" aria-label="배경음악 켜기/끄기" title="배경음악"><span class="bgm-ico">♪</span><span class="bgm-bars"><i></i><i></i><i></i></span></button>
+      <input type="range" id="bgm-vol" min="0" max="100" value="35" aria-label="음량">
+    </div>
     <ul class="nav-links" id="nav-links">
       <li><a href="#hero">인트로</a></li>
       <li><a href="#myth">기록 보관소</a></li>
@@ -881,7 +901,11 @@ footer .copy{font-family:var(--sans);font-size:.68rem;letter-spacing:.3em;margin
 (function(){
   const audio=document.getElementById('bgm');
   const btn=document.getElementById('bgm-btn');
-  const TARGET=.35;
+  const ctrl=document.getElementById('bgm-ctrl');
+  const slider=document.getElementById('bgm-vol');
+  let TARGET=Math.min(1,Math.max(0,parseFloat(localStorage.getItem('bgm-vol'))||.35));
+  slider.value=Math.round(TARGET*100);
+  slider.style.setProperty('--fill',slider.value+'%');
   let fadeTimer=null,userOff=false;
   function fade(to,then){
     clearInterval(fadeTimer);
@@ -894,7 +918,7 @@ footer .copy{font-family:var(--sans);font-size:.68rem;letter-spacing:.3em;margin
   function start(){
     if(!audio.paused||userOff)return Promise.resolve();
     audio.volume=0;
-    return audio.play().then(()=>{fade(TARGET);btn.classList.add('on');});
+    return audio.play().then(()=>{fade(TARGET);btn.classList.add('on');ctrl.classList.add('on');});
   }
   /* 입장 시 자동 재생 시도 → 차단되면 상호작용마다 재시도, 성공해야 리스너 해제 */
   const EVTS=['pointerdown','pointerup','touchend','keydown','touchstart','wheel','scroll','click'];
@@ -910,8 +934,18 @@ footer .copy{font-family:var(--sans);font-size:.68rem;letter-spacing:.3em;margin
       userOff=true;
       fade(0,()=>audio.pause());
       btn.classList.remove('on');
+      ctrl.classList.remove('on');
     }
   });
+  /* 음량 슬라이더 */
+  slider.addEventListener('input',()=>{
+    TARGET=slider.value/100;
+    slider.style.setProperty('--fill',slider.value+'%');
+    localStorage.setItem('bgm-vol',TARGET);
+    clearInterval(fadeTimer);
+    if(!audio.paused)audio.volume=TARGET;
+  });
+  ['pointerdown','touchstart','click'].forEach(e=>slider.addEventListener(e,ev=>ev.stopPropagation()));
 })();
 
 /* ═══════════ character data ═══════════ */
